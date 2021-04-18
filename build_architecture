@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# graphe : Tunnel IPv6
+# graphe : IPv6
 
 # créer les namespaces pour les hôtes
 ip netns add h1

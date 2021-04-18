@@ -1,15 +1,11 @@
-#!/usr/bin/python
-# coding=utf8
+#!/usr/bin/python3
 
 # la commande de conversion vers le graph est :
 #  dot -Tpng graph.dot -o graph.png
 
-import subprocess
+import subprocess,re,functools
 
-
-def get_list(c):
-	elements = subprocess.check_output(c,shell=True).splitlines()
-	return [e.split('#') if ('#' in e) else e for e in elements]
+nom_graphe = "Net Lab"
 
 interface_desc = """        "%s" [label=<
             <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
@@ -24,59 +20,43 @@ switch_desc = """        "%s" [label=<
         >];"""
 
 nom_fichier = 'build_architecture'
-cat_fichier = 'cat '+nom_fichier
+contenu_fichier = open(nom_fichier).readlines()
 
-list_hosts_command = cat_fichier+"|awk '/ip\s+netns\s+add/ { print $4 }'"
-list_switches_command = cat_fichier+"|awk '/ovs-vsctl\s+add-br/ { print $3 }'"
-list_veths_command = cat_fichier+"|awk '/ip\s+l(ink)?\s+add/ { print $9 \"#\" $4 }'"
-list_ports_command = cat_fichier+"|awk '/ovs-vsctl\s+add-port/ { print $3 \"#\" $4}'"
-list_addresses_command = cat_fichier+"|awk '/ip a(ddress)?\s*add\s+dev\s+/ { print $9 \"#\" $10 }'"
-titre_graphe_command = cat_fichier+"|sed -n 's/^# graphe : \(.*\)/\\1/p'" 
+list_hosts = [t.split()[3] for t in contenu_fichier if re.findall("ip\s+netns\s+add",t)]
+list_switches = [t.split()[2] for t in contenu_fichier if re.findall("ovs-vsctl\s+add-br",t)]
+list_veths = [[t.split()[8],t.split()[3]] for t in contenu_fichier if re.findall("ip\s+link\s+add",t)]
+list_ports = [[t.split()[2],t.split()[3]] for t in contenu_fichier if re.findall("ovs-vsctl\s+add-port",t)]
+list_addresses = [[t.split()[8],t.split()[9]] for t in contenu_fichier if re.findall("ip\s+a(ddress)?\s+add\s+dev",t)]
 
-list_hosts = get_list(list_hosts_command)
-list_switches = get_list(list_switches_command)
-list_veths = get_list(list_veths_command)
-list_ports = get_list(list_ports_command)
-list_addresses = get_list(list_addresses_command)
-titre_graphe = subprocess.check_output(titre_graphe_command,shell=True).rstrip('\n')
+list_veths = [sorted(x,key=functools.cmp_to_key(lambda x,y: -1 if (x[:x.find('-')] in list_switches) else 1))  for x in list_veths]
 
-nom_graphe = titre_graphe or "Net Lab" 
-
-#print list_hosts
-#print list_switches
-#print list_veths
-list_veths = [sorted(x,cmp=lambda x,y: -1 if (x[:x.find('-')] in list_switches) else 1)  for x in list_veths]
-#print list_veths
-#print list_ports
-#print list_addresses
-
-print """digraph G { 
+print ("""digraph G { 
     label = "%s";
     labelloc = top;
  
     node [shape=record];
-    edge [dir=both];"""%(nom_graphe)
+    edge [dir=both];"""%(nom_graphe))
 
 compteur = 0
 for h in list_hosts:
-	print """subgraph cluster_%d {
+	print ("""subgraph cluster_%d {
 		label = %s;
-	"""%(compteur,h)
+	"""%(compteur,h))
 	compteur+=1
 	interfaces = [i for i in list_addresses if i[0].startswith(h)]
 	for i in interfaces:
-		print interface_desc%(i[0],i[0],i[1])
-	print """	}"""	
+		print (interface_desc%(i[0],i[0],i[1]))
+	print ("""	}""")	
 
 for s in list_switches:
-	print """subgraph cluster_%d {
+	print ("""subgraph cluster_%d {
 		label = %s;
-	"""%(compteur,s)
+	"""%(compteur,s))
 	compteur+=1
-	print switch_desc%(s,s)
-	print """	}"""
+	print (switch_desc%(s,s))
+	print ("""	}""")
 
 dico_veths = dict(list_veths)
 for p in list_ports:
-	print """ "%s"->"%s"; """%(p[0],dico_veths[p[1]])
-print "}"
+	print (""" "%s"->"%s"; """%(p[0],dico_veths[p[1]]))
+print ("}")
