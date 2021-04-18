@@ -1,0 +1,92 @@
+digraph G { 
+    label = "Tunnel IPv6";
+    labelloc = top;
+ 
+    node [shape=record];
+    edge [dir=both];
+subgraph cluster_0 {
+		label = h1;
+	
+        "h1-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>h1-eth0</b></td></tr>
+                <tr><td align="left">IP: 172.16.32.1/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_1 {
+		label = h2;
+	
+        "h2-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>h2-eth0</b></td></tr>
+                <tr><td align="left">IP: 192.168.87.1/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_2 {
+		label = r1;
+	
+        "r1-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>r1-eth0</b></td></tr>
+                <tr><td align="left">IP: 172.16.32.254/24</td></tr>
+            </table>
+        >];
+        "r1-eth1" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>r1-eth1</b></td></tr>
+                <tr><td align="left">IP: 10.10.0.1/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_3 {
+		label = r2;
+	
+        "r2-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>r2-eth0</b></td></tr>
+                <tr><td align="left">IP: 192.168.87.254/24</td></tr>
+            </table>
+        >];
+        "r2-eth1" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>r2-eth1</b></td></tr>
+                <tr><td align="left">IP: 10.10.0.2/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_4 {
+		label = internet;
+	
+        "internet" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="orange"><b>internet</b></td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_5 {
+		label = s1;
+	
+        "s1" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="orange"><b>s1</b></td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_6 {
+		label = s2;
+	
+        "s2" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="orange"><b>s2</b></td></tr>
+            </table>
+        >];
+	}
+ "s1"->"h1-eth0"; 
+ "s1"->"r1-eth0"; 
+ "s2"->"h2-eth0"; 
+ "s2"->"r2-eth0"; 
+ "internet"->"r1-eth1"; 
+ "internet"->"r2-eth1"; 
+}

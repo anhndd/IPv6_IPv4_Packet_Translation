@@ -1,0 +1,18 @@
+#!/bin/bash
+INTERFACE=switchipv6
+CONFIG=$(cat <<END
+interface $INTERFACE
+{
+	AdvSendAdvert on;
+	MinRtrAdvInterval 5;
+	MaxRtrAdvInterval 15;
+	prefix 2001:2:3:4501::/64
+	{
+		AdvOnLink on;
+		AdvAutonomous on;
+	};
+};
+END
+)
+
+radvd -C <(echo "$CONFIG")
