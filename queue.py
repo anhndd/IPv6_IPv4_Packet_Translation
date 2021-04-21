@@ -4,9 +4,7 @@ import nfqueue, socket, sys
 from scapy.all import *
 
 MAC_client = "ea:43:75:a9:46:80"
-# MAC_server = "b2:74:40:99:3e:eb"
-MAC_server = "52:54:00:12:35:02" # not important
-# ipv6_server = "2001:2:3:4501:1878:c774:e7e9:18d6"
+MAC_server = "52:54:00:12:35:02"  # not important
 ipv6_server = "2001::5a2a:503b:15b6:f44"
 ipv4_server = "10.189.139.68"
 ipv4_client = "10.0.2.15"
@@ -37,7 +35,8 @@ def traite_paquet(number, payload):
 
                 layers = pkt.layers()
 
-                new_pkt = Ether(dst=MAC_client, src=MAC_server, type=0x86dd) / IPv6(src=ipv6_server, dst=ipv6_client) / TCP(
+                new_pkt = Ether(dst=MAC_client, src=MAC_server, type=0x86dd) / IPv6(src=ipv6_server,
+                                                                                    dst=ipv6_client) / TCP(
                     sport=pkt["TCP"].sport, dport=pkt["TCP"].dport, flags=pkt["TCP"].flags,
                     seq=pkt["TCP"].seq, ack=pkt["TCP"].ack, dataofs=pkt["TCP"].dataofs,
                     reserved=pkt["TCP"].reserved, window=pkt["TCP"].window,
