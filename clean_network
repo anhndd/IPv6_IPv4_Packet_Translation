@@ -1,0 +1,2 @@
+sudo iptables -t mangle -F
+sudo ip6tables -t mangle -F

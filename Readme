@@ -1,0 +1,6 @@
+After build architecture:
+
+modify MAC client	= MAC h1
+modify IPv4 client 	= IPv4 router
+modify IPv4 server	= IPv4 host
+

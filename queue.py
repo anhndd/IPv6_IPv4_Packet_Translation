@@ -3,23 +3,25 @@
 import nfqueue, socket, sys
 from scapy.all import *
 
-MAC_client = "22:f6:7f:c9:0c:28"
-MAC_server = "b2:74:40:99:3e:eb"
-# MAC_server = "52:54:00:12:35:02" # not important
-ipv6_server = "2001:2:3:4501:b074:40ff:fe99:3eeb"
+MAC_client = "ea:43:75:a9:46:80"
+# MAC_server = "b2:74:40:99:3e:eb"
+MAC_server = "52:54:00:12:35:02" # not important
+# ipv6_server = "2001:2:3:4501:1878:c774:e7e9:18d6"
+ipv6_server = "2001::5a2a:503b:15b6:f44"
 ipv4_server = "10.189.139.68"
 ipv4_client = "10.0.2.15"
 
 hmap_save = {}
 
-isFirst = int(sys.argv[1])
+isTranslate = int(sys.argv[1])
 
 
 def traite_paquet(number, payload):
     global hmap_save
-    global isFirst
-
+    global isTranslate
+    print("isTranslate", isTranslate)
     print("number", number)
+
     # le paquet est fourni sous forme d'une séquence d'octet, il faut l'importer
     data = payload.get_data()
 
@@ -29,7 +31,7 @@ def traite_paquet(number, payload):
         # paquet IPv4
         pkt = IP(data)
 
-        if not isFirst:
+        if isTranslate:
             if (ipv4_client, pkt["TCP"].dport) in hmap_save:
                 ipv6_client = hmap_save[(ipv4_client, pkt["TCP"].dport)]
 
@@ -60,8 +62,7 @@ def traite_paquet(number, payload):
         # paquet IPv6
         pkt = IPv6(data)
 
-        print(isFirst)
-        if not isFirst:
+        if isTranslate:
             hmap_save[(ipv4_client, pkt["TCP"].sport)] = pkt.src
 
             layers = pkt.layers()
