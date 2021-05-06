@@ -21,20 +21,16 @@ ovs-vsctl add-port bridge_ipv6 switchipv6-h1
 ovs-vsctl add-port bridge_ipv6 switchipv6-host
 
 # activer les interfaces du namespace root
-ip link set dev switchipv6-h1 up
 ip link set dev switchipv6-host up
+ip link set dev switchipv6 up
+ip link set dev switchipv6-h1 up
+
+ip link set dev lo up
 
 # activer les interfaces des namespaces h1 et h2 
 ip netns exec h1 ip link set dev h1-eth0 up
-ip link set dev switchipv6 up
 
 ip netns exec h1 ip link set dev lo up
-ip link set dev lo up
 
-# activer switchipv6
-#ip link set dev switchipv6 up
-
-# set up prefix for switchipv6
-#sudo ./script_radvd
 
 

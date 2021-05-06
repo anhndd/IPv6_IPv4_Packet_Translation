@@ -3,11 +3,16 @@
 import nfqueue, socket, sys
 from scapy.all import *
 
-MAC_client = "ea:43:75:a9:46:80"
-MAC_server = "52:54:00:12:35:02"  # not important
-ipv6_server = "2001::5a2a:503b:15b6:f44"
-ipv4_server = "10.189.139.68"
+# MAC client h1
+MAC_client = "fa:0c:60:db:f1:0e"
+
+# IP, MAC real machine
+ipv4_server = "10.42.0.1"
+MAC_server = "3c:58:c2:ee:df:b3"  # not important
+
+# IP VM host
 ipv4_client = "10.0.2.15"
+ipv6_server = "2001:2:3:4501:54a4:aeff:fefd:f226"
 
 hmap_save = {}
 
@@ -33,8 +38,9 @@ def traite_paquet(number, payload):
             if (ipv4_client, pkt["TCP"].dport) in hmap_save:
                 ipv6_client = hmap_save[(ipv4_client, pkt["TCP"].dport)]
 
-                layers = pkt.layers()
+                layers = list(getLayers(pkt))
 
+                # new_pkt = Ether(dst=MAC_client, type=0x86dd) / IPv6(src=ipv6_server,
                 new_pkt = Ether(dst=MAC_client, src=MAC_server, type=0x86dd) / IPv6(src=ipv6_server,
                                                                                     dst=ipv6_client) / TCP(
                     sport=pkt["TCP"].sport, dport=pkt["TCP"].dport, flags=pkt["TCP"].flags,
@@ -64,7 +70,7 @@ def traite_paquet(number, payload):
         if isTranslate:
             hmap_save[(ipv4_client, pkt["TCP"].sport)] = pkt.src
 
-            layers = pkt.layers()
+            layers = list(getLayers(pkt))
 
             new_pkt = IP(src=ipv4_client, dst=ipv4_server) / TCP(sport=pkt["TCP"].sport, dport=pkt["TCP"].dport,
                                                                  flags=pkt["TCP"].flags, seq=pkt["TCP"].seq,
@@ -88,12 +94,19 @@ def traite_paquet(number, payload):
             payload.set_verdict(nfqueue.NF_ACCEPT)
 
 
-# accepte le paquet : le paquet est remis dans la pile TCP/IP et poursuit sa route
-# payload.set_verdict(nfqueue.NF_ACCEPT)
-# si modifie : le paquet est remis MODIFIE dans la pile TCP/IP et poursuit sa route
-# payload.set_verdict_modified(nfqueue.NF_ACCEPT, str(pkt), len(pkt))
-# si rejete : le paquet est rejeté
-# payload.set_verdict(nfqueue.NF_DROP)
+        # accepte le paquet : le paquet est remis dans la pile TCP/IP et poursuit sa route
+        # payload.set_verdict(nfqueue.NF_ACCEPT)
+        # si modifie : le paquet est remis MODIFIE dans la pile TCP/IP et poursuit sa route
+        # payload.set_verdict_modified(nfqueue.NF_ACCEPT, str(pkt), len(pkt))
+        # si rejete : le paquet est rejeté
+        # payload.set_verdict(nfqueue.NF_DROP)
+
+def getLayers(packet):
+     yield packet.name
+     while packet.payload:
+         packet = packet.payload
+         yield packet.name
+
 q = nfqueue.queue()
 q.open()
 q.unbind(socket.AF_INET6)

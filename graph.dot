@@ -9,14 +9,14 @@ subgraph cluster_0 {
 	
 	}
 subgraph cluster_1 {
-		label = switchipv6;
+		label = bridge_ipv6;
 	
-        "switchipv6" [label=<
+        "bridge_ipv6" [label=<
             <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
-                <tr><td bgcolor="orange"><b>switchipv6</b></td></tr>
+                <tr><td bgcolor="orange"><b>bridge_ipv6</b></td></tr>
             </table>
         >];
 	}
- "switchipv6"->"h1-eth0"; 
- "switchipv6"->"host-eth0"; 
+ "bridge_ipv6"->"h1-eth0"; 
+ "bridge_ipv6"->"switchipv6"; 
 }
